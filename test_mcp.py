@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import asyncio
 import json
+import pytest
 from mcp.client.session import ClientSession
 from mcp.client.stdio import stdio_client
+
+pytestmark = pytest.mark.asyncio
 
 async def test_mcp_server():
     print("🧪 Testing AI Development Team MCP Server...")

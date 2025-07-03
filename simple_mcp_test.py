@@ -3,6 +3,9 @@ import asyncio
 import json
 import subprocess
 import sys
+import pytest
+
+pytestmark = pytest.mark.asyncio
 
 async def test_mcp_server():
     print("🧪 Testing AI Development Team MCP Server...")
