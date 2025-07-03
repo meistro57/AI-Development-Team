@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "ai-dev-team": {
+      "command": "python",
+      "args": ["ai_dev_team_server.py"],
+      "cwd": "/home/mark/ai-development-team",
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}",
+        "GITHUB_USERNAME": "${GITHUB_USERNAME}",
+        "WORK_DIR": "/home/mark/ai-development-team/projects"
+      }
+    }
+  }
+}

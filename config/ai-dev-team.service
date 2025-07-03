@@ -1,0 +1,16 @@
+[Unit]
+Description=AI Development Team MCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=mark
+WorkingDirectory=/home/mark/ai-development-team
+Environment=PATH=/home/mark/ai-development-team/ai-dev-env/bin
+EnvironmentFile=/home/mark/ai-development-team/.env
+ExecStart=/home/mark/ai-development-team/ai-dev-env/bin/python ai_dev_team_server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

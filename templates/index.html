@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Development Team</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; opacity: 0.9; }
+        .content { padding: 40px; }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        textarea { height: 120px; resize: vertical; }
+        
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .projects {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+        .project-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4facfe;
+        }
+        .project-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .project-desc {
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .project-meta {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        
+        .emoji { font-size: 1.2em; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Development Team</h1>
+            <p>Create amazing projects with artificial intelligence</p>
+        </div>
+        
+        <div class="content">
+            <div id="alerts"></div>
+            
+            <form id="projectForm">
+                <div class="form-group">
+                    <label for="name">
+                        <span class="emoji">📝</span>Project Name
+                    </label>
+                    <input type="text" id="name" name="name" 
+                           placeholder="Enter your project name (e.g., Task Manager App)"
+                           required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">
+                        <span class="emoji">📋</span>Project Description
+                    </label>
+                    <textarea id="description" name="description" 
+                              placeholder="Describe what your project should do..."
+                              required></textarea>
+                </div>
+                
+                <button type="submit" class="btn" id="createBtn">
+                    <span class="emoji">🚀</span>Create Project with AI Team
+                </button>
+            </form>
+            
+            <div class="projects" id="projectsSection">
+                <h3><span class="emoji">📁</span>Your AI-Generated Projects</h3>
+                <div id="projectsList">
+                    {% if projects %}
+                        {% for project in projects %}
+                        <div class="project-card">
+                            <div class="project-name">{{ project.original_name }}</div>
+                            <div class="project-desc">{{ project.description }}</div>
+                            <div class="project-meta">
+                                Created: {{ project.created }} | 
+                                Path: {{ project.path }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #666; text-align: center; padding: 20px;">
+                            No projects created yet. Create your first AI project above! 🎯
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('projectForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('createBtn');
+            const alerts = document.getElementById('alerts');
+            
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<span class="emoji">⏳</span>AI Team is working...';
+            alerts.innerHTML = '<div class="loading">🤖 Your AI Development Team is creating your project...</div>';
+            
+            // Get form data
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/create_project', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Success
+                    alerts.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>🎉 Success!</strong><br>
+                            ${result.message.replace(/\n/g, '<br>')}
+                        </div>
+                    `;
+                    
+                    // Add project to list
+                    const projectsList = document.getElementById('projectsList');
+                    const projectCard = document.createElement('div');
+                    projectCard.className = 'project-card';
+                    projectCard.innerHTML = `
+                        <div class="project-name">${result.project.original_name}</div>
+                        <div class="project-desc">${result.project.description}</div>
+                        <div class="project-meta">
+                            Created: ${result.project.created} | 
+                            Path: ${result.project.path}
+                        </div>
+                    `;
+                    projectsList.insertBefore(projectCard, projectsList.firstChild);
+                    
+                    // Clear form
+                    this.reset();
+                } else {
+                    // Error
+                    alerts.innerHTML = `
+                        <div class="alert alert-error">
+                            <strong>❌ Error:</strong> ${result.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                alerts.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Error:</strong> Failed to communicate with AI team
+                    </div>
+                `;
+            }
+            
+            // Reset button
+            btn.disabled = false;
+            btn.innerHTML = '<span class="emoji">🚀</span>Create Project with AI Team';
+        });
+    </script>
+</body>
+</html>
