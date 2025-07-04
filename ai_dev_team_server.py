@@ -12,8 +12,26 @@ import asyncio
 import os
 import sys
 from datetime import datetime
+import json
+import logging
+import logging.config
+import yaml
 
 app = Server("ai-dev-team-server")
+
+# Logging configuration
+LOG_CONFIG = os.getenv(
+    "LOG_CONFIG",
+    os.path.join(os.path.dirname(__file__), "config", "logging.yaml"),
+)
+if os.path.exists(LOG_CONFIG):
+    os.makedirs(os.path.join(os.getcwd(), "logs"), exist_ok=True)
+    with open(LOG_CONFIG, "r") as f:
+        logging.config.dictConfig(yaml.safe_load(f))
+else:
+    logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger("ai_dev_team")
 
 # Configuration
 WORK_DIR = os.getenv("WORK_DIR", os.path.join(os.getcwd(), "projects"))
@@ -55,7 +73,9 @@ async def call_tool(name: str, arguments: dict):
         project_name = arguments["name"]
         description = arguments["description"]
         project_path = os.path.join(WORK_DIR, project_name)
-        
+
+        logger.info("Creating project %s", project_name)
+
         # Create project structure
         os.makedirs(project_path, exist_ok=True)
         os.makedirs(os.path.join(project_path, "src"), exist_ok=True)
@@ -79,7 +99,16 @@ print("Created by AI Development Team")
         
         with open(os.path.join(project_path, "src", "main.py"), "w") as f:
             f.write(main_content)
-        
+
+        # Write project configuration
+        config_data = {
+            "name": project_name,
+            "description": description,
+            "created": datetime.now().isoformat(),
+        }
+        with open(os.path.join(project_path, "project_config.json"), "w") as f:
+            json.dump(config_data, f, indent=2)
+
         # Store project
         project_id = f"proj_{len(projects) + 1}"
         projects[project_id] = {
@@ -95,10 +124,12 @@ print("Created by AI Development Team")
                 text=f"✅ Project '{project_name}' created successfully!\n📁 Location: {project_path}"
             )
         ]
-    
+
     elif name == "list_projects":
         if not projects:
             return [TextContent(type="text", text="No projects created yet.")]
+
+        logger.debug("Listing %d projects", len(projects))
 
         project_list = "Projects:\n"
         for proj_id, proj in projects.items():
