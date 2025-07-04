@@ -4,10 +4,9 @@ AI Development Team - Web Frontend
 Simple web interface for creating projects
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify
 import asyncio
 import os
-import json
 from datetime import datetime
 import sys
 

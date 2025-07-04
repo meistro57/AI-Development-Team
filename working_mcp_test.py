@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
 import json
-import time
 import sys
 
 def test_mcp_server():
