@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project: {{ project_name }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Project: {{ project_name }}</h1>
+    {% if files %}
+        {% for name, content in files.items() %}
+            <h2>{{ name }}</h2>
+            <pre>{{ content }}</pre>
+        {% endfor %}
+    {% else %}
+        <p>No files found.</p>
+    {% endif %}
+</body>
+</html>

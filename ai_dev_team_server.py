@@ -3,12 +3,12 @@
 AI Development Team MCP Server - Syntax Fixed
 """
 
+
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Resource, Tool, TextContent
+from mcp.types import Tool, TextContent
 import asyncio
 import os
-import json
 import sys
 from datetime import datetime
 
