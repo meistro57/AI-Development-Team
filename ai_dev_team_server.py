@@ -7,6 +7,7 @@ AI Development Team MCP Server - Syntax Fixed
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
+from agents import list_default_agents
 import asyncio
 import os
 import sys
@@ -39,6 +40,11 @@ async def list_tools():
         Tool(
             name="list_projects",
             description="List all created projects",
+            inputSchema={"type": "object", "properties": {}}
+        ),
+        Tool(
+            name="list_agents",
+            description="List available automated agents",
             inputSchema={"type": "object", "properties": {}}
         )
     ]
@@ -93,12 +99,17 @@ print("Created by AI Development Team")
     elif name == "list_projects":
         if not projects:
             return [TextContent(type="text", text="No projects created yet.")]
-        
+
         project_list = "Projects:\n"
         for proj_id, proj in projects.items():
             project_list += f"• {proj['name']}: {proj['description']}\n"
-        
+
         return [TextContent(type="text", text=project_list)]
+
+    elif name == "list_agents":
+        agents = list_default_agents()
+        agent_list = "Agents:\n" + "\n".join(f"• {a.name}: {a.purpose}" for a in agents)
+        return [TextContent(type="text", text=agent_list)]
 
 async def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
