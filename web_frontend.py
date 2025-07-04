@@ -16,6 +16,10 @@ from ai_dev_team_server import call_tool
 
 app = Flask(__name__)
 
+# Host and port are configurable via environment variables
+HOST = os.getenv("FRONTEND_HOST", "0.0.0.0")
+PORT = int(os.getenv("FRONTEND_PORT", "5000"))
+
 # Store project history
 project_history = []
 
@@ -126,4 +130,4 @@ def view_project(project_name):
                          files=files)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host=HOST, port=PORT)
