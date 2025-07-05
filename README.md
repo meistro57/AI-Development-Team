@@ -16,9 +16,8 @@ This repository contains a simple example of an **AI-based development team**. I
 
 1. Create a virtual environment and install the required packages:
    ```bash
-   python -m venv ai-dev-env
+   ./scripts/setup.sh
    source ai-dev-env/bin/activate
-   pip install -r requirements.txt
    ```
 2. (Optional) set environment variables used by the server and web frontend:
    - `GITHUB_TOKEN` and `GITHUB_USERNAME` for GitHub integration.
@@ -69,6 +68,9 @@ or
 python simple_mcp_test.py
 ```
 These scripts start the server and exercise its MCP API.
+
+Additional details about the underlying protocol can be found in
+[docs/MCP_PROTOCOL.md](docs/MCP_PROTOCOL.md).
 
 ## License
 
