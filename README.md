@@ -11,6 +11,11 @@ This repository contains a simple example of an **AI-based development team**. I
 - **Tests** – Scripts such as `test_mcp.py` and `simple_mcp_test.py` show how to interact with the server.
 - **Configuration** – Example systemd service and MCP configuration are located in the `config/` folder.
 - **`LM_STUDIO_SETUP.md`** – Detailed guide for running the project with LM Studio as a local language model.
+- **`verify_agents.py`** – Diagnostic script to confirm all AI agents respond correctly.
+- **`project_templates/`** – Jinja2 templates used when generating new projects.
+- **`config/docker-compose.dev.yml`** – Example Docker Compose setup with Postgres and Redis.
+- **`scripts/`** – Helper scripts for environment setup, backups and updates.
+- **`list_agents` tool** – Inspect available AI agents and their roles through the MCP server.
 
 ## Setup
 
@@ -45,6 +50,7 @@ The `cli.py` tool provides a simple way to interact with the server without the 
 ```bash
 python cli.py create my-project "My project description"
 python cli.py list
+python cli.py agents
 ```
 
 ### Docker
