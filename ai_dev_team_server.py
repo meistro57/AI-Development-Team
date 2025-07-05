@@ -16,6 +16,7 @@ import json
 import logging
 import logging.config
 import yaml
+from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 app = Server("ai-dev-team-server")
 
@@ -37,8 +38,13 @@ logger = logging.getLogger("ai_dev_team")
 WORK_DIR = os.getenv("WORK_DIR", os.path.join(os.getcwd(), "projects"))
 os.makedirs(WORK_DIR, exist_ok=True)
 
+# Project file templates
+TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "project_templates")
+env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+
 # Simple project storage
 projects = {}
+
 
 @app.list_tools()
 async def list_tools():
@@ -50,22 +56,26 @@ async def list_tools():
                 "type": "object",
                 "properties": {
                     "name": {"type": "string", "description": "Project name"},
-                    "description": {"type": "string", "description": "Project description"}
+                    "description": {
+                        "type": "string",
+                        "description": "Project description",
+                    },
                 },
-                "required": ["name", "description"]
-            }
+                "required": ["name", "description"],
+            },
         ),
         Tool(
             name="list_projects",
             description="List all created projects",
-            inputSchema={"type": "object", "properties": {}}
+            inputSchema={"type": "object", "properties": {}},
         ),
         Tool(
             name="list_agents",
             description="List available automated agents",
-            inputSchema={"type": "object", "properties": {}}
-        )
+            inputSchema={"type": "object", "properties": {}},
+        ),
     ]
+
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict):
@@ -76,54 +86,63 @@ async def call_tool(name: str, arguments: dict):
 
         logger.info("Creating project %s", project_name)
 
-        # Create project structure
-        os.makedirs(project_path, exist_ok=True)
-        os.makedirs(os.path.join(project_path, "src"), exist_ok=True)
-        
-        # Create README
-        readme_content = f"""# {project_name}
+        try:
+            os.makedirs(os.path.join(project_path, "src"), exist_ok=True)
 
-{description}
+            context = {
+                "project_name": project_name,
+                "description": description,
+                "created": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
 
-Created by AI Development Team on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-"""
-        
-        with open(os.path.join(project_path, "README.md"), "w") as f:
-            f.write(readme_content)
-        
-        # Create main.py
-        main_content = f'''print("Hello from {project_name}!")
-print("Description: {description}")
-print("Created by AI Development Team")
-'''
-        
-        with open(os.path.join(project_path, "src", "main.py"), "w") as f:
-            f.write(main_content)
+            try:
+                tmpl = env.get_template("README.md.j2")
+                readme_content = tmpl.render(**context)
+            except TemplateNotFound:
+                readme_content = f"# {project_name}\n\n{description}\n\nCreated by AI Development Team on {context['created']}"
 
-        # Write project configuration
-        config_data = {
-            "name": project_name,
-            "description": description,
-            "created": datetime.now().isoformat(),
-        }
-        with open(os.path.join(project_path, "project_config.json"), "w") as f:
-            json.dump(config_data, f, indent=2)
+            with open(os.path.join(project_path, "README.md"), "w") as f:
+                f.write(readme_content)
 
-        # Store project
-        project_id = f"proj_{len(projects) + 1}"
-        projects[project_id] = {
-            "name": project_name,
-            "description": description,
-            "path": project_path,
-            "created": datetime.now().isoformat()
-        }
-        
-        return [
-            TextContent(
-                type="text",
-                text=f"✅ Project '{project_name}' created successfully!\n📁 Location: {project_path}"
-            )
-        ]
+            try:
+                tmpl = env.get_template("main.py.j2")
+                main_content = tmpl.render(**context)
+            except TemplateNotFound:
+                main_content = (
+                    f'print("Hello from {project_name}!")\n'
+                    f'print("Description: {description}")\n'
+                    'print("Created by AI Development Team")\n'
+                )
+
+            with open(os.path.join(project_path, "src", "main.py"), "w") as f:
+                f.write(main_content)
+
+            config_data = {
+                "name": project_name,
+                "description": description,
+                "created": datetime.now().isoformat(),
+            }
+            with open(os.path.join(project_path, "project_config.json"), "w") as f:
+                json.dump(config_data, f, indent=2)
+
+            project_id = f"proj_{len(projects) + 1}"
+            projects[project_id] = {
+                "name": project_name,
+                "description": description,
+                "path": project_path,
+                "created": datetime.now().isoformat(),
+            }
+
+            return [
+                TextContent(
+                    type="text",
+                    text=f"✅ Project '{project_name}' created successfully!\n📁 Location: {project_path}",
+                )
+            ]
+
+        except Exception as exc:
+            logger.exception("Failed to create project %s", project_name)
+            return [TextContent(type="text", text=f"❌ Error creating project: {exc}")]
 
     elif name == "list_projects":
         if not projects:
@@ -142,14 +161,16 @@ print("Created by AI Development Team")
         agent_list = "Agents:\n" + "\n".join(f"• {a.name}: {a.purpose}" for a in agents)
         return [TextContent(type="text", text=agent_list)]
 
+
 async def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         print("✅ AI Development Team MCP Server - Test Mode")
         print(f"📁 Work Directory: {WORK_DIR}")
         return
-    
+
     async with stdio_server() as (read_stream, write_stream):
         await app.run(read_stream, write_stream, initialization_options={})
+
 
 if __name__ == "__main__":
     asyncio.run(main())
