@@ -22,5 +22,15 @@ def list():
     else:
         typer.echo("No projects found")
 
+
+@app.command()
+def agents():
+    """List available automated agents"""
+    result = asyncio.run(call_tool("list_agents", {}))
+    if result:
+        typer.echo(result[0].text)
+    else:
+        typer.echo("No agents found")
+
 if __name__ == "__main__":
     app()
