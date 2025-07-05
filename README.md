@@ -19,11 +19,11 @@ This repository contains a simple example of an **AI-based development team**. I
 
 ## Setup
 
-1. Create a virtual environment and install the required packages:
+1. Run the installation script which sets up the environment, checks for LM Studio and runs the tests:
    ```bash
-   ./scripts/setup.sh
-   source ai-dev-env/bin/activate
+   ./scripts/install.sh
    ```
+   The script will create the `ai-dev-env` virtual environment if needed, install requirements, and verify that a local LM Studio server is running.
 2. (Optional) set environment variables used by the server and web frontend:
    - `GITHUB_TOKEN` and `GITHUB_USERNAME` for GitHub integration.
    - `WORK_DIR` to choose where generated projects are stored (defaults to `./projects`).
