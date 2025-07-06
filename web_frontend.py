@@ -63,25 +63,29 @@ def create_project():
         loop.close()
 
         # Parse result
-        if result and len(result) > 0:
+        if isinstance(result, list) and len(result) > 0:
             success_message = result[0].text
-
-            # Add to history
-            project_info = {
-                "name": clean_name,
-                "original_name": project_name,
-                "description": description,
-                "created": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "path": f"projects/{clean_name}",
-                "status": "success",
-            }
-            project_history.insert(0, project_info)
-
-            return jsonify(
-                {"success": True, "message": success_message, "project": project_info}
-            )
+        elif isinstance(result, dict):
+            if result.get("success"):
+                success_message = result.get("message", "Project created")
+            else:
+                error_msg = result.get("error", "Failed to create project")
+                return jsonify({"error": error_msg}), 500
         else:
-            return jsonify({"error": "Failed to create project"}), 500
+            return jsonify({"error": "Invalid response from server"}), 500
+
+        # Add to history
+        project_info = {
+            "name": clean_name,
+            "original_name": project_name,
+            "description": description,
+            "created": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "path": f"projects/{clean_name}",
+            "status": "success",
+        }
+        project_history.insert(0, project_info)
+
+        return jsonify({"success": True, "message": success_message, "project": project_info})
 
     except Exception as e:
         logger.exception("Failed to create project")
