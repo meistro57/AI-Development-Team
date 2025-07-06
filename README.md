@@ -32,16 +32,15 @@ This repository contains a simple example of an **AI-based development team**. I
 
 ## Running
 
-Launch the MCP server:
+Launch both the MCP server and the web interface with a single command:
 ```bash
-python ai_dev_team_server.py
+python run_app.py
 ```
+This will start the backend server and Flask frontend together. Then open
+`http://localhost:5000` in your browser to create projects via the web UI.
 
-The web frontend can be started separately:
-```bash
-python web_frontend.py
-```
-Then open `http://localhost:5000` in your browser to create projects via the web UI.
+If you prefer, the server (`ai_dev_team_server.py`) and the web frontend
+(`web_frontend.py`) can still be run independently.
 
 ### Command Line Interface
 
