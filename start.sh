@@ -25,5 +25,5 @@ if [ -x ./scripts/install_llama.sh ]; then
     ./scripts/install_llama.sh || true
 fi
 
-# Start the MCP server
-exec python ai_dev_team_server.py "$@"
+# Start the MCP server and web frontend together
+exec python run_app.py "$@"
