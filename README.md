@@ -19,7 +19,7 @@ This repository contains a simple example of an **AI-based development team**. I
 
 ## Setup
 
-1. Run the installation script which sets up the environment, checks for LM Studio and runs the tests:
+1. Run the installation script which sets up the environment, checks for LM Studio and runs the tests. If LM Studio is not running a helper script will install a local Llama backend automatically:
    ```bash
    ./scripts/install.sh
    ```

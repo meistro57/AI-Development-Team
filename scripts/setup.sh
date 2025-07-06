@@ -7,4 +7,7 @@ source ai-dev-env/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 
+echo "Checking for LM Studio or local Llama installation..."
+./scripts/install_llama.sh
+
 echo "✅ Environment ready. Activate with: source ai-dev-env/bin/activate"
