@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 import sys
 import logging
+from typing import Sequence
 
 # Import our AI development team
 sys.path.append(".")
@@ -62,16 +63,27 @@ def create_project():
 
         loop.close()
 
-        # Parse result
-        if isinstance(result, list) and len(result) > 0:
-            success_message = result[0].text
-        elif isinstance(result, dict):
+        # Parse result from the server which may be a list of content blocks,
+        # a CallToolResult object, or a plain dict
+        success_message = None
+        if isinstance(result, dict):
             if result.get("success"):
                 success_message = result.get("message", "Project created")
             else:
                 error_msg = result.get("error", "Failed to create project")
                 return jsonify({"error": error_msg}), 500
         else:
+            data: Sequence | None = None
+            if hasattr(result, "content"):
+                data = result.content
+            elif isinstance(result, Sequence):
+                data = result
+
+            if data and len(data) > 0:
+                first = data[0]
+                success_message = getattr(first, "text", str(first))
+
+        if not success_message:
             return jsonify({"error": "Invalid response from server"}), 500
 
         # Add to history
@@ -85,7 +97,9 @@ def create_project():
         }
         project_history.insert(0, project_info)
 
-        return jsonify({"success": True, "message": success_message, "project": project_info})
+        return jsonify(
+            {"success": True, "message": success_message, "project": project_info}
+        )
 
     except Exception as e:
         logger.exception("Failed to create project")
@@ -102,11 +116,23 @@ def list_projects():
         result = loop.run_until_complete(call_tool("list_projects", {}))
         loop.close()
 
-        if result and len(result) > 0:
-            projects_text = result[0].text
-            return jsonify({"projects": projects_text})
-        else:
+        data: Sequence | None = None
+        if isinstance(result, dict):
+            projects_text = result.get("projects") or result.get("message")
+            if projects_text:
+                return jsonify({"projects": projects_text})
             return jsonify({"projects": "No projects found"})
+
+        if hasattr(result, "content"):
+            data = result.content
+        elif isinstance(result, Sequence):
+            data = result
+
+        if data and len(data) > 0:
+            first = data[0]
+            projects_text = getattr(first, "text", str(first))
+            return jsonify({"projects": projects_text})
+        return jsonify({"projects": "No projects found"})
 
     except Exception as e:
         logger.exception("Failed to list projects")
