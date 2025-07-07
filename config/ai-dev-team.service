@@ -6,9 +6,8 @@ After=network.target
 Type=simple
 User=mark
 WorkingDirectory=/home/mark/ai-development-team
-Environment=PATH=/home/mark/ai-development-team/ai-dev-env/bin
 EnvironmentFile=/home/mark/ai-development-team/.env
-ExecStart=/home/mark/ai-development-team/ai-dev-env/bin/python ai_dev_team_server.py
+ExecStart=/home/mark/ai-development-team/start.sh
 Restart=always
 RestartSec=10
 

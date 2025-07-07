@@ -62,6 +62,16 @@ docker compose up --build
 
 This exposes the web interface on `http://localhost:5000` and stores generated projects under the `projects/` directory.
 
+### Running as a service
+
+If you want the team to run continuously and pull new updates automatically, install the provided systemd service:
+
+```bash
+sudo ./scripts/setup_service.sh
+```
+
+The service launches `start.sh` on boot which updates the repository before starting the server and restarts it on failure.
+
 ## Testing
 
 Basic interaction tests are provided. After installing the requirements you can run:
