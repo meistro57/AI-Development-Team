@@ -17,6 +17,9 @@ import logging
 import logging.config
 import yaml
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
+from git import Repo
+import requests
+from database import init_db, add_project, list_projects as db_list_projects
 
 app = Server("ai-dev-team-server")
 
@@ -37,6 +40,9 @@ logger = logging.getLogger("ai_dev_team")
 # Configuration
 WORK_DIR = os.getenv("WORK_DIR", os.path.join(os.getcwd(), "projects"))
 os.makedirs(WORK_DIR, exist_ok=True)
+
+# Initialize database for persistent project storage
+init_db()
 
 # Project file templates
 TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), "project_templates")
@@ -125,6 +131,42 @@ async def call_tool(name: str, arguments: dict):
             with open(os.path.join(project_path, "project_config.json"), "w") as f:
                 json.dump(config_data, f, indent=2)
 
+            # Persist project details
+            add_project(project_name, description, project_path, config_data["created"])
+
+            # Initialize git repository and optionally push to GitHub
+            try:
+                repo = Repo.init(project_path)
+                repo.git.add(all=True)
+                repo.index.commit("Initial commit")
+
+                github_token = os.getenv("GITHUB_TOKEN")
+                github_user = os.getenv("GITHUB_USERNAME")
+                if github_token and github_user:
+                    headers = {
+                        "Authorization": f"token {github_token}",
+                        "Accept": "application/vnd.github.v3+json",
+                    }
+                    resp = requests.post(
+                        "https://api.github.com/user/repos",
+                        headers=headers,
+                        json={"name": project_name},
+                        timeout=10,
+                    )
+                    if resp.status_code == 201:
+                        remote_url = resp.json().get("clone_url")
+                        if remote_url:
+                            repo.create_remote("origin", remote_url)
+                            repo.git.push("-u", "origin", "master")
+                    else:
+                        logger.warning(
+                            "GitHub repo creation failed: %s %s",
+                            resp.status_code,
+                            resp.text,
+                        )
+            except Exception as git_exc:
+                logger.warning("Git initialization failed: %s", git_exc)
+
             project_id = f"proj_{len(projects) + 1}"
             projects[project_id] = {
                 "name": project_name,
@@ -145,14 +187,15 @@ async def call_tool(name: str, arguments: dict):
             return [TextContent(type="text", text=f"❌ Error creating project: {exc}")]
 
     elif name == "list_projects":
-        if not projects:
+        rows = db_list_projects()
+        if not rows:
             return [TextContent(type="text", text="No projects created yet.")]
 
-        logger.info("Listing %d projects", len(projects))
+        logger.info("Listing %d projects", len(rows))
 
         project_list = "Projects:\n"
-        for proj_id, proj in projects.items():
-            project_list += f"• {proj['name']}: {proj['description']}\n"
+        for name_, desc in rows:
+            project_list += f"• {name_}: {desc}\n"
 
         return [TextContent(type="text", text=project_list)]
 

@@ -8,6 +8,9 @@ This repository contains a simple example of an **AI-based development team**. I
 - **`web_frontend.py`** – Flask application with a form for creating projects using the server.
 - **`cli.py`** – Simple command line tool to create and list projects.
 - **`templates/index.html`** – HTML template used by the web interface.
+- **Persistent storage** – Projects are saved to a SQLite database.
+- **Authentication** – Basic auth can protect the web UI when enabled.
+- **GitHub integration** – New projects may be pushed to GitHub automatically.
 - **Tests** – Scripts such as `test_mcp.py` and `simple_mcp_test.py` show how to interact with the server.
 - **Configuration** – Example systemd service and MCP configuration are located in the `config/` folder.
 - **`OLLAMA_SETUP.md`** – Detailed guide for running the project with Ollama as a local language model.
@@ -27,6 +30,8 @@ This repository contains a simple example of an **AI-based development team**. I
 2. (Optional) set environment variables used by the server and web frontend:
    - `GITHUB_TOKEN` and `GITHUB_USERNAME` for GitHub integration.
    - `WORK_DIR` to choose where generated projects are stored (defaults to `./projects`).
+   - `DB_PATH` to set the SQLite database file for persistent project storage.
+   - `WEB_USERNAME` and `WEB_PASSWORD` to enable basic authentication for the web UI.
    - `FRONTEND_PORT` and `FRONTEND_HOST` to configure the web UI port and host.
    - `LOG_CONFIG` to override the logging configuration file path.
 
