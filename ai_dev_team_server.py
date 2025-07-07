@@ -148,7 +148,7 @@ async def call_tool(name: str, arguments: dict):
         if not projects:
             return [TextContent(type="text", text="No projects created yet.")]
 
-        logger.debug("Listing %d projects", len(projects))
+        logger.info("Listing %d projects", len(projects))
 
         project_list = "Projects:\n"
         for proj_id, proj in projects.items():
@@ -157,6 +157,7 @@ async def call_tool(name: str, arguments: dict):
         return [TextContent(type="text", text=project_list)]
 
     elif name == "list_agents":
+        logger.info("Listing agents")
         agents = list_default_agents()
         agent_list = "Agents:\n" + "\n".join(f"• {a.name}: {a.purpose}" for a in agents)
         return [TextContent(type="text", text=agent_list)]
