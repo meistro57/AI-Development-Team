@@ -4,6 +4,7 @@ import types
 import pytest
 
 import ai_dev_team_server as server
+import database
 
 
 @pytest.mark.asyncio
@@ -11,6 +12,8 @@ async def test_call_tool_creates_project(tmp_path, monkeypatch):
     # Use a temporary directory for project creation
     server.WORK_DIR = str(tmp_path)
     server.projects.clear()
+    database.DB_PATH = str(tmp_path / "projects.db")
+    database.init_db()
 
     result = await server.call_tool(
         "create_simple_project",

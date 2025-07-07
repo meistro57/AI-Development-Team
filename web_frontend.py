@@ -4,7 +4,7 @@ AI Development Team - Web Frontend
 Simple web interface for creating projects
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 import asyncio
 import os
 from datetime import datetime
@@ -20,6 +20,41 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("web_frontend")
 
+# Basic authentication setup
+USERNAME = os.getenv("WEB_USERNAME")
+PASSWORD = os.getenv("WEB_PASSWORD")
+
+
+def check_auth(username: str, password: str) -> bool:
+    return (
+        USERNAME is not None
+        and PASSWORD is not None
+        and username == USERNAME
+        and password == PASSWORD
+    )
+
+
+def authenticate() -> Response:
+    return Response(
+        "Authentication required",
+        401,
+        {"WWW-Authenticate": 'Basic realm="Login Required"'},
+    )
+
+
+def requires_auth(fn):
+    def wrapper(*args, **kwargs):
+        if USERNAME is None or PASSWORD is None:
+            return fn(*args, **kwargs)
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return fn(*args, **kwargs)
+
+    wrapper.__name__ = fn.__name__
+    return wrapper
+
+
 # Host and port are configurable via environment variables
 HOST = os.getenv("FRONTEND_HOST", "0.0.0.0")
 PORT = int(os.getenv("FRONTEND_PORT", "5000"))
@@ -29,12 +64,14 @@ project_history = []
 
 
 @app.route("/")
+@requires_auth
 def index():
     """Main page with project creation form"""
     return render_template("index.html", projects=project_history)
 
 
 @app.route("/create_project", methods=["POST"])
+@requires_auth
 def create_project():
     """Handle project creation"""
     try:
@@ -107,6 +144,7 @@ def create_project():
 
 
 @app.route("/projects")
+@requires_auth
 def list_projects():
     """List all created projects"""
     try:
@@ -140,12 +178,14 @@ def list_projects():
 
 
 @app.route("/api/projects")
+@requires_auth
 def api_projects():
     """Return project history as JSON"""
     return jsonify(project_history)
 
 
 @app.route("/api/projects/<name>")
+@requires_auth
 def api_project_detail(name):
     """Return single project details"""
     for proj in project_history:
@@ -155,6 +195,7 @@ def api_project_detail(name):
 
 
 @app.route("/project/<project_name>")
+@requires_auth
 def view_project(project_name):
     """View project details"""
     project_path = f"projects/{project_name}"
