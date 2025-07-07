@@ -19,39 +19,26 @@ black .
 echo "Running tests..."
 pytest -q
 
-# 3. Check LM Studio availability
-LM_STUDIO_URL="http://localhost:1234/v1/models"
+# 3. Check Ollama availability
+OLLAMA_URL="http://localhost:11434/api/tags"
 
-echo "Checking LM Studio..."
-if curl -sf "$LM_STUDIO_URL" > /dev/null; then
-    echo "✅ LM Studio server is running"
+echo "Checking Ollama..."
+if curl -sf "$OLLAMA_URL" > /dev/null; then
+    echo "✅ Ollama server is running"
 else
-    echo "⚠️  LM Studio not detected on port 1234"
-    if command -v lmstudio >/dev/null 2>&1; then
-        echo "➡️  Starting LM Studio in server mode"
-        lmstudio --server &
-        sleep 5
-    elif ls LMStudio-*.AppImage >/dev/null 2>&1; then
-        APPIMG=$(ls LMStudio-*.AppImage | head -n1)
-        chmod +x "$APPIMG"
-        "./$APPIMG" --server &
+    echo "⚠️  Ollama not detected on port 11434"
+    if command -v ollama >/dev/null 2>&1; then
+        echo "➡️  Starting Ollama in server mode"
+        ollama serve &
         sleep 5
     else
-        echo "➡️  Downloading LM Studio AppImage..."
-        curl -L -o LMStudio.AppImage "https://github.com/lmstudio-ai/LM-Studio/releases/latest/download/LMStudio-linux-x64.AppImage" || true
-        if [ -f LMStudio.AppImage ]; then
-            chmod +x LMStudio.AppImage
-            ./LMStudio.AppImage --server &
-            sleep 5
-        else
-            echo "❌ Automatic download failed. Please follow LM_STUDIO_SETUP.md"
-        fi
+        echo "❌ Ollama command not found. Please follow OLLAMA_SETUP.md"
     fi
 
-    if curl -sf "$LM_STUDIO_URL" > /dev/null; then
-        echo "✅ LM Studio server started"
+    if curl -sf "$OLLAMA_URL" > /dev/null; then
+        echo "✅ Ollama server started"
     else
-        echo "❌ LM Studio server still not running. See LM_STUDIO_SETUP.md for manual setup"
+        echo "❌ Ollama server still not running. See OLLAMA_SETUP.md for manual setup"
     fi
 fi
 

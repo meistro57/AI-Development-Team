@@ -1,12 +1,12 @@
 #!/bin/bash
-# Install and test Llama if LM Studio or Llama server is not detected
+# Install and test Llama if Ollama or Llama server is not detected
 set -e
 
-LM_STUDIO_URL="http://localhost:1234/v1/models"
+OLLAMA_URL="http://localhost:11434/api/tags"
 
-# Check LM Studio server
-if curl -sf "$LM_STUDIO_URL" > /dev/null; then
-    echo "✅ LM Studio server detected"
+# Check Ollama server
+if curl -sf "$OLLAMA_URL" > /dev/null; then
+    echo "✅ Ollama server detected"
     exit 0
 fi
 

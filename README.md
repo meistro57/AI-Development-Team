@@ -10,7 +10,7 @@ This repository contains a simple example of an **AI-based development team**. I
 - **`templates/index.html`** – HTML template used by the web interface.
 - **Tests** – Scripts such as `test_mcp.py` and `simple_mcp_test.py` show how to interact with the server.
 - **Configuration** – Example systemd service and MCP configuration are located in the `config/` folder.
-- **`LM_STUDIO_SETUP.md`** – Detailed guide for running the project with LM Studio as a local language model.
+- **`OLLAMA_SETUP.md`** – Detailed guide for running the project with Ollama as a local language model.
 - **`verify_agents.py`** – Diagnostic script to confirm all AI agents respond correctly.
 - **`project_templates/`** – Jinja2 templates used when generating new projects.
 - **`config/docker-compose.dev.yml`** – Example Docker Compose setup with Postgres and Redis.
@@ -19,11 +19,11 @@ This repository contains a simple example of an **AI-based development team**. I
 
 ## Setup
 
-1. Run the installation script which sets up the environment, checks for LM Studio and runs the tests. If LM Studio is not running a helper script will install a local Llama backend automatically:
+1. Run the installation script which sets up the environment, checks for Ollama and runs the tests. If Ollama is not running a helper script will install a local Llama backend automatically:
    ```bash
    ./scripts/install.sh
    ```
-   The script will create the `ai-dev-env` virtual environment if needed, install requirements, and verify that a local LM Studio server is running.
+   The script will create the `ai-dev-env` virtual environment if needed, install requirements, and verify that a local Ollama server is running.
 2. (Optional) set environment variables used by the server and web frontend:
    - `GITHUB_TOKEN` and `GITHUB_USERNAME` for GitHub integration.
    - `WORK_DIR` to choose where generated projects are stored (defaults to `./projects`).
