@@ -86,9 +86,18 @@ async def list_tools():
 @app.call_tool()
 async def call_tool(name: str, arguments: dict):
     if name == "create_simple_project":
-        project_name = arguments["name"]
-        description = arguments["description"]
+        project_name = arguments["name"].strip()
+        description = arguments["description"].strip()
+        if not project_name or not description:
+            return [TextContent(type="text", text="❌ Name and description required")]
+
         project_path = os.path.join(WORK_DIR, project_name)
+        if os.path.exists(project_path):
+            return [
+                TextContent(
+                    type="text", text=f"❌ Project {project_name} already exists"
+                )
+            ]
 
         logger.info("Creating project %s", project_name)
 
@@ -184,7 +193,11 @@ async def call_tool(name: str, arguments: dict):
 
         except Exception as exc:
             logger.exception("Failed to create project %s", project_name)
-            return [TextContent(type="text", text=f"❌ Error creating project: {exc}")]
+            return [
+                TextContent(
+                    type="text", text=f"❌ Error creating project {project_name}: {exc}"
+                )
+            ]
 
     elif name == "list_projects":
         rows = db_list_projects()

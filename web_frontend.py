@@ -15,10 +15,21 @@ from typing import Sequence
 # Import our AI development team
 sys.path.append(".")
 from ai_dev_team_server import call_tool
+from database import (
+    list_projects_full as db_list_projects_full,
+    get_project as db_get_project,
+)
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("web_frontend")
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    logger.exception("Unhandled error")
+    return jsonify({"error": str(e)}), 500
+
 
 # Basic authentication setup
 USERNAME = os.getenv("WEB_USERNAME")
@@ -180,17 +191,28 @@ def list_projects():
 @app.route("/api/projects")
 @requires_auth
 def api_projects():
-    """Return project history as JSON"""
-    return jsonify(project_history)
+    """Return all projects from the database"""
+    rows = db_list_projects_full()
+    projects = [
+        {
+            "name": n,
+            "description": d,
+            "path": p,
+            "created": c,
+        }
+        for n, d, p, c in rows
+    ]
+    return jsonify(projects)
 
 
 @app.route("/api/projects/<name>")
 @requires_auth
 def api_project_detail(name):
     """Return single project details"""
-    for proj in project_history:
-        if proj["name"] == name:
-            return jsonify(proj)
+    row = db_get_project(name)
+    if row:
+        n, d, p, c = row
+        return jsonify({"name": n, "description": d, "path": p, "created": c})
     return jsonify({"error": "Not found"}), 404
 
 

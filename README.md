@@ -19,6 +19,9 @@ This repository contains a simple example of an **AI-based development team**. I
 - **`config/docker-compose.dev.yml`** – Example Docker Compose setup with Postgres and Redis.
 - **`scripts/`** – Helper scripts for environment setup, backups and updates.
 - **`list_agents` tool** – Inspect available AI agents and their roles through the MCP server.
+- **REST API endpoints** – `/api/projects` and `/api/projects/<name>` expose project data.
+- **Code formatted with Black** – Consistent style enforced via `black`.
+- **Security checks** – CI runs `bandit` and `safety` to detect issues.
 
 ## Setup
 
@@ -26,7 +29,7 @@ This repository contains a simple example of an **AI-based development team**. I
    ```bash
    ./scripts/install.sh
    ```
-   The script will create the `ai-dev-env` virtual environment if needed, install requirements, and verify that a local Ollama server is running.
+   The script will create the `ai-dev-env` virtual environment if needed, install requirements, run `black` and the tests, and verify that a local Ollama server is running.
 2. (Optional) set environment variables used by the server and web frontend:
    - `GITHUB_TOKEN` and `GITHUB_USERNAME` for GitHub integration.
    - `WORK_DIR` to choose where generated projects are stored (defaults to `./projects`).
@@ -91,6 +94,14 @@ These scripts start the server and exercise its MCP API.
 
 Additional details about the underlying protocol can be found in
 [docs/MCP_PROTOCOL.md](docs/MCP_PROTOCOL.md).
+
+### Code Formatting
+
+Use the `black` formatter to keep the style consistent:
+
+```bash
+black .
+```
 
 ## License
 
