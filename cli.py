@@ -33,5 +33,27 @@ def list():
         typer.echo("No projects found")
 
 
+@app.command()
+def delete(name: str):
+    """Delete an existing project"""
+    logger.info("Deleting project %s", name)
+    result = asyncio.run(call_tool("delete_project", {"name": name}))
+    if result:
+        typer.echo(result[0].text)
+    else:
+        typer.echo("Failed to delete project")
+
+
+@app.command()
+def agents():
+    """List available agents"""
+    logger.info("Listing agents")
+    result = asyncio.run(call_tool("list_agents", {}))
+    if result:
+        typer.echo(result[0].text)
+    else:
+        typer.echo("No agents found")
+
+
 if __name__ == "__main__":
     app()

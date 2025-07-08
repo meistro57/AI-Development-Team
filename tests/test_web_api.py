@@ -21,3 +21,13 @@ def test_api_projects(tmp_path):
         assert resp_detail.status_code == 200
         detail = resp_detail.get_json()
         assert detail["name"] == "demo"
+
+
+def test_api_health(tmp_path):
+    prepare_temp_env(tmp_path)
+    web_frontend.app.config.update({"TESTING": True})
+    with web_frontend.app.test_client() as client:
+        resp = client.get("/health")
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["status"] == "ok"

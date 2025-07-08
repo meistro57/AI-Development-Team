@@ -216,6 +216,22 @@ def api_project_detail(name):
     return jsonify({"error": "Not found"}), 404
 
 
+@app.route("/health")
+def health():
+    """Simple health check endpoint"""
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        result = loop.run_until_complete(call_tool("health_check", {}))
+    finally:
+        loop.close()
+
+    status = "ok"
+    if isinstance(result, list) and result:
+        status = getattr(result[0], "text", str(result[0]))
+    return jsonify({"status": status})
+
+
 @app.route("/project/<project_name>")
 @requires_auth
 def view_project(project_name):

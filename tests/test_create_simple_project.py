@@ -36,3 +36,17 @@ async def test_call_tool_creates_project(tmp_path, monkeypatch):
     # listing should include the project name
     list_result = await server.call_tool("list_projects", {})
     assert any("demo" in block.text for block in list_result)
+
+
+@pytest.mark.asyncio
+async def test_call_tool_delete_project(tmp_path):
+    prepare_temp_env(tmp_path)
+
+    await server.call_tool(
+        "create_simple_project",
+        {"name": "demo", "description": "demo project"},
+    )
+
+    del_result = await server.call_tool("delete_project", {"name": "demo"})
+    assert any("deleted" in block.text for block in del_result)
+    assert not (tmp_path / "demo").exists()
