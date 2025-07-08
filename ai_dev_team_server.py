@@ -19,7 +19,13 @@ import yaml
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from git import Repo
 import requests
-from database import init_db, add_project, list_projects as db_list_projects
+import shutil
+from database import (
+    init_db,
+    add_project,
+    list_projects as db_list_projects,
+    delete_project as db_delete_project,
+)
 
 app = Server("ai-dev-team-server")
 
@@ -78,6 +84,20 @@ async def list_tools():
         Tool(
             name="list_agents",
             description="List available automated agents",
+            inputSchema={"type": "object", "properties": {}},
+        ),
+        Tool(
+            name="delete_project",
+            description="Delete an existing project",
+            inputSchema={
+                "type": "object",
+                "properties": {"name": {"type": "string", "description": "Project name"}},
+                "required": ["name"],
+            },
+        ),
+        Tool(
+            name="health_check",
+            description="Check server health",
             inputSchema={"type": "object", "properties": {}},
         ),
     ]
@@ -217,6 +237,21 @@ async def call_tool(name: str, arguments: dict):
         agents = list_default_agents()
         agent_list = "Agents:\n" + "\n".join(f"• {a.name}: {a.purpose}" for a in agents)
         return [TextContent(type="text", text=agent_list)]
+
+    elif name == "delete_project":
+        project_name = arguments["name"].strip()
+        project_path = os.path.join(WORK_DIR, project_name)
+        try:
+            if os.path.exists(project_path):
+                shutil.rmtree(project_path)
+            db_delete_project(project_name)
+            return [TextContent(type="text", text=f"✅ Project '{project_name}' deleted")]
+        except Exception as exc:
+            logger.exception("Failed to delete project %s", project_name)
+            return [TextContent(type="text", text=f"❌ Error deleting project {project_name}: {exc}")]
+
+    elif name == "health_check":
+        return [TextContent(type="text", text="ok")]
 
 
 async def main():

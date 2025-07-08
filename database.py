@@ -54,3 +54,10 @@ def get_project(name: str) -> tuple | None:
             (name,),
         )
         return cur.fetchone()
+
+
+def delete_project(name: str) -> None:
+    """Remove a project from the database"""
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        conn.execute("DELETE FROM projects WHERE name=?", (name,))
+        conn.commit()
