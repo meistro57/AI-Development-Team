@@ -37,6 +37,15 @@ def list_projects() -> list[tuple[str, str]]:
         return cur.fetchall()
 
 
+def list_projects_full() -> list[tuple[str, str, str, str]]:
+    """Return list of all project details"""
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        cur = conn.execute(
+            "SELECT name, description, path, created FROM projects ORDER BY id DESC"
+        )
+        return cur.fetchall()
+
+
 def get_project(name: str) -> tuple | None:
     """Retrieve single project info"""
     with closing(sqlite3.connect(DB_PATH)) as conn:
